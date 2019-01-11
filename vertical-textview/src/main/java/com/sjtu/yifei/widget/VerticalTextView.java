@@ -56,7 +56,9 @@ public class VerticalTextView extends View {
     }
 
     private void init() {
-        text = "";
+        if (TextUtils.isEmpty(text)) {
+            text = "";
+        }
         textColor = 0xff000000;
         textSize = sp2px(getContext(), 14);
         columnSpacing = dp2px(getContext(), 4);
@@ -64,7 +66,6 @@ public class VerticalTextView extends View {
     }
 
     private void init(AttributeSet attrs, int defStyle) {
-        init();
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.VerticalTextView, defStyle, 0);
 
@@ -82,6 +83,7 @@ public class VerticalTextView extends View {
         textStyle = a.getInt(R.styleable.VerticalTextView_textStyle, textStyle);
         a.recycle();
 
+        init();
         // Set up a default TextPaint object
         textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
 
@@ -103,6 +105,7 @@ public class VerticalTextView extends View {
         textPaint.setTextSize(textSize);
         textPaint.setColor(textColor);
         textPaint.setTextAlign(isCharCenter ? Paint.Align.CENTER : Paint.Align.LEFT);
+        fontMetrics = textPaint.getFontMetrics();
         textPaint.setFakeBoldText((textStyle & Typeface.BOLD) != 0);
         textPaint.setTextSkewX((textStyle & Typeface.ITALIC) != 0 ? -0.25f : 0);
 
@@ -119,7 +122,6 @@ public class VerticalTextView extends View {
             ellipsisPaint.setTextAlign(isCharCenter ? Paint.Align.CENTER : Paint.Align.LEFT);
         }
 
-        fontMetrics = textPaint.getFontMetrics();
         charHeight = (int) (Math.abs(fontMetrics.ascent) + Math.abs(fontMetrics.descent) + Math.abs(fontMetrics.leading));
         char[] chars = text.toCharArray();
         textCountSize = chars.length;
@@ -166,25 +168,29 @@ public class VerticalTextView extends View {
         if (widthMode == MeasureSpec.EXACTLY) {
             width = widthSize - getPaddingLeft() - getPaddingRight();
         } else {
-            int columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
-            if (columnLength > 0) {
-                columnCount = columnLength;
-                atMostHeight = true;
-            }
-            if (atMostHeight) {
-                height = (charHeight + rowSpacing) * (columnCount - 1) + charHeight + (int) (Math.abs(fontMetrics.descent));
-            }
-            int column = textCountSize / columnCount + (textCountSize % columnCount > 0 ? 1 : 0);
-            if (maxColumns > 0) {
-                if (column > maxColumns) {
-                    isShowEllipsis = true;
-                    column = maxColumns;
-                } else {
-                    maxColumns = column;
+            if (charHeight > 0) {
+                int columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
+                if (columnLength > 0) {
+                    columnCount = columnLength;
+                    atMostHeight = true;
                 }
+                if (atMostHeight) {
+                    height = (charHeight + rowSpacing) * (columnCount - 1) + charHeight + (int) (Math.abs(fontMetrics.descent));
+                }
+                int column = textCountSize / columnCount + (textCountSize % columnCount > 0 ? 1 : 0);
+                if (maxColumns > 0) {
+                    if (column > maxColumns) {
+                        isShowEllipsis = true;
+                        column = maxColumns;
+                    } else {
+                        maxColumns = column;
+                    }
+                }
+                width = (charWidth + columnSpacing) * (column - 1) + charWidth;
+                updateColumnTexts(columnCount);
+            } else {
+                width = widthSize - getPaddingLeft() - getPaddingRight();
             }
-            width = (charWidth + columnSpacing) * (column - 1) + charWidth;
-            updateColumnTexts(columnCount);
         }
 
         widthMeasureSpec = MeasureSpec.makeMeasureSpec(width + getPaddingLeft() + getPaddingRight(), MeasureSpec.EXACTLY);
@@ -194,13 +200,15 @@ public class VerticalTextView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
         // allocations per draw cycle.
         int paddingLeft = getPaddingLeft();
         int paddingTop = getPaddingTop();
 
         int x = 0;
         int y = 0;
+        if (columnTexts == null) {
+            return;
+        }
         for (int i = 0; i < columnTexts.size(); i++) { //按列画
             x = i == 0 ? paddingLeft : x + charWidth + columnSpacing;
             char[] chars = columnTexts.get(i).toCharArray();
@@ -232,6 +240,7 @@ public class VerticalTextView extends View {
 
     public void setText(String text) {
         this.text = text;
+        invalidateTextPaintAndMeasurements();
     }
 
     public void setTextColor(int textColor) {

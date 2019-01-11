@@ -22,17 +22,19 @@
                 app:isCharCenter="true"/>
 
         <com.sjtu.yifei.widget.VerticalTextView
+                android:id="@+id/vtv2"
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"
                 android:layout_marginTop="20dp"
                 android:background="#bdd"
                 app:columnSpacing="8dp"
-                app:text="12382914183-24341324132=1`23`2113,.121e,."
+                app:maxColumns="5"
                 app:textColor="#25252A"
                 app:textSize="13sp"
                 app:isCharCenter="true"/>
 
         <com.sjtu.yifei.widget.VerticalTextView
+                android:id="@+id/vtv3"
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"
                 android:layout_marginTop="20dp"
