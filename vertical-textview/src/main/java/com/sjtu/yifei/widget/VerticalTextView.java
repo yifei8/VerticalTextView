@@ -9,7 +9,6 @@ import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -98,6 +97,9 @@ public class VerticalTextView extends View {
     private Typeface typeface;
 
     private void invalidateTextPaintAndMeasurements() {
+        if (TextUtils.isEmpty(text)) {
+            return;
+        }
         textPaint.setTextSize(textSize);
         textPaint.setColor(textColor);
         textPaint.setTextAlign(isCharCenter ? Paint.Align.CENTER : Paint.Align.LEFT);
@@ -144,6 +146,10 @@ public class VerticalTextView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (TextUtils.isEmpty(text)) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            return;
+        }
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -168,16 +174,16 @@ public class VerticalTextView extends View {
             if (atMostHeight) {
                 height = (charHeight + rowSpacing) * (columnCount - 1) + charHeight + (int) (Math.abs(fontMetrics.descent));
             }
-
-            int column = maxColumns;
-            if (column < 0) {
-                column = textCountSize / columnCount + (textCountSize % columnCount > 0 ? 1 : 0);
-            } else {
-                int t = textCountSize / columnCount + (textCountSize % columnCount > 0 ? 1 : 0);
-                isShowEllipsis = t > column;
+            int column = textCountSize / columnCount + (textCountSize % columnCount > 0 ? 1 : 0);
+            if (maxColumns > 0) {
+                if (column > maxColumns) {
+                    isShowEllipsis = true;
+                    column = maxColumns;
+                } else {
+                    maxColumns = column;
+                }
             }
             width = (charWidth + columnSpacing) * (column - 1) + charWidth;
-            width = Math.min(width, widthSize - getPaddingLeft() - getPaddingRight());
             updateColumnTexts(columnCount);
         }
 
@@ -200,7 +206,7 @@ public class VerticalTextView extends View {
             char[] chars = columnTexts.get(i).toCharArray();
             boolean isLastColumn = i == maxColumns - 1;
             for (int j = 0; j < chars.length; j++) {
-                y = j == 0 ? paddingTop + charHeight : y + charHeight + rowSpacing;
+                y = j == 0 ? paddingTop + (int) Math.abs(fontMetrics.ascent) : y + charHeight + rowSpacing;
                 if (isCharCenter) {
                     if (isShowEllipsis && j == chars.length - 1 && isLastColumn) {
                         canvas.drawText("\uE606", x + charWidth / 2 + 1, y, ellipsisPaint);
@@ -218,8 +224,6 @@ public class VerticalTextView extends View {
                 }
             }
         }
-
-
     }
 
     public String getText() {
@@ -228,7 +232,6 @@ public class VerticalTextView extends View {
 
     public void setText(String text) {
         this.text = text;
-        invalidateTextPaintAndMeasurements();
     }
 
     public void setTextColor(int textColor) {
