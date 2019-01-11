@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -15,6 +16,9 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 垂直文字显示的TextView
+ */
 public class VerticalTextView extends View {
 
     private static final String TAG = "VerticalTextView";
@@ -23,15 +27,18 @@ public class VerticalTextView extends View {
     private int textSize;
     private int rowSpacing;
     private int columnSpacing;
+    private int columnLength;
     private int maxColumns;
 
 
+    private Paint ellipsisPaint;
     private TextPaint textPaint;
     private int width;
     private int height;
     private List<String> columnTexts;
 
-    private boolean isAboutHeight = true; //是否使用包裹字体的高度，减少底部可能出现的空白区域
+    private boolean isCharCenter = false; //字符是否居中展示
+    private boolean atMostHeight = true; //是否使用包裹字体的高度，减少底部可能出现的空白区域
 
     public VerticalTextView(Context context) {
         super(context);
@@ -59,28 +66,43 @@ public class VerticalTextView extends View {
         textSize = a.getDimensionPixelSize(R.styleable.VerticalTextView_textSize, textSize);
         rowSpacing = a.getDimensionPixelSize(R.styleable.VerticalTextView_rowSpacing, rowSpacing);
         columnSpacing = a.getDimensionPixelSize(R.styleable.VerticalTextView_columnSpacing, columnSpacing);
+        columnLength = a.getInteger(R.styleable.VerticalTextView_columnLength, -1);
         maxColumns = a.getInteger(R.styleable.VerticalTextView_maxColumns, -1);
+        atMostHeight = a.getBoolean(R.styleable.VerticalTextView_atMostHeight, true);
+        isCharCenter = a.getBoolean(R.styleable.VerticalTextView_isCharCenter, true);
 
         a.recycle();
 
         // Set up a default TextPaint object
-        textPaint = new TextPaint();
-        textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        textPaint.setTextAlign(Paint.Align.LEFT);
+        textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
 
         // Update TextPaint and text measurements from attributes
         invalidateTextPaintAndMeasurements();
     }
 
+    private boolean isShowEllipsis;
     private int charWidth;
     private int charHeight;
     private int textCountSize;
     private Paint.FontMetrics fontMetrics;
+    private Typeface typeface;
 
     private void invalidateTextPaintAndMeasurements() {
         textPaint.setTextSize(textSize);
         textPaint.setColor(textColor);
-//        textPaint.setTextAlign(Paint.Align.CENTER);
+        textPaint.setTextAlign(isCharCenter ? Paint.Align.CENTER : Paint.Align.LEFT);
+
+        if (maxColumns > 0) {
+            if (ellipsisPaint == null) {
+                ellipsisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                typeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/verticalEllipsis.TTF");
+                ellipsisPaint.setTypeface(typeface);
+            }
+            ellipsisPaint.setTextSize(textSize);
+            ellipsisPaint.setColor(textColor);
+            ellipsisPaint.setTextAlign(isCharCenter ? Paint.Align.CENTER : Paint.Align.LEFT);
+        }
+
         fontMetrics = textPaint.getFontMetrics();
         charHeight = (int) (Math.abs(fontMetrics.ascent) + Math.abs(fontMetrics.descent) + Math.abs(fontMetrics.leading));
         char[] chars = text.toCharArray();
@@ -103,7 +125,7 @@ public class VerticalTextView extends View {
         if (i - count < text.length()) {
             columnTexts.add(text.substring(i - count));
         }
-        Log.e(TAG, "text:" + columnTexts.toString());
+//        Log.e(TAG, "text:" + columnTexts.toString());
     }
 
     @Override
@@ -125,10 +147,21 @@ public class VerticalTextView extends View {
             width = widthSize - getPaddingLeft() - getPaddingRight();
         } else {
             int columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
-            if (isAboutHeight) {
+            if (columnLength > 0) {
+                columnCount = columnLength;
+                atMostHeight = true;
+            }
+            if (atMostHeight) {
                 height = (charHeight + rowSpacing) * (columnCount - 1) + charHeight + (int) (Math.abs(fontMetrics.descent));
             }
-            int column = textCountSize / columnCount + (textCountSize % columnCount > 0 ? 1 : 0);
+
+            int column = maxColumns;
+            if (column < 0) {
+                column = textCountSize / columnCount + (textCountSize % columnCount > 0 ? 1 : 0);
+            } else {
+                int t = textCountSize / columnCount + (textCountSize % columnCount > 0 ? 1 : 0);
+                isShowEllipsis = t > column;
+            }
             width = (charWidth + columnSpacing) * (column - 1) + charWidth;
             width = Math.min(width, widthSize - getPaddingLeft() - getPaddingRight());
             updateColumnTexts(columnCount);
@@ -151,9 +184,24 @@ public class VerticalTextView extends View {
         for (int i = 0; i < columnTexts.size(); i++) { //按列画
             x = i == 0 ? paddingLeft : x + charWidth + columnSpacing;
             char[] chars = columnTexts.get(i).toCharArray();
+            boolean isLastColumn = i == maxColumns - 1;
             for (int j = 0; j < chars.length; j++) {
                 y = j == 0 ? paddingTop + charHeight : y + charHeight + rowSpacing;
-                canvas.drawText(chars[j] + "", x, y, textPaint);
+                if (isCharCenter) {
+                    if (isShowEllipsis && j == chars.length - 1 && isLastColumn) {
+                        canvas.drawText("\uE606", x + charWidth / 2 + 1, y, ellipsisPaint);
+                        break;
+                    } else {
+                        canvas.drawText(chars[j] + "", x + charWidth / 2 + 1, y, textPaint);
+                    }
+                } else {
+                    if (isShowEllipsis && j == chars.length - 1 && isLastColumn) {
+                        canvas.drawText("\uE606", x, y, ellipsisPaint);
+                        break;
+                    } else {
+                        canvas.drawText(chars[j] + "", x, y, textPaint);
+                    }
+                }
             }
         }
 

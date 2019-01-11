@@ -5,6 +5,9 @@
         <attr name="textSize" format="dimension|reference"/>
         <attr name="rowSpacing" format="dimension|reference"/>
         <attr name="columnSpacing" format="dimension|reference"/>
+        <attr name="columnLength" format="integer"/>
         <attr name="maxColumns" format="integer"/>
+        <attr name="atMostHeight" format="boolean"/>
+        <attr name="isCharCenter" format="boolean"/>
     </declare-styleable>
 </resources>
