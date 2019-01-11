@@ -1,50 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <LinearLayout android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_centerInParent="true"
-                  android:orientation="vertical">
+    <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
-        <com.sjtu.yifei.widget.VerticalTextView
-                android:id="@+id/vtv1"
-                android:layout_width="wrap_content"
-                android:layout_height="200dp"
-                android:background="#bdd"
-                app:columnSpacing="8dp"
-                app:text="该类描述给定文本大小的字体的各种度量.记住'Y值向下增加，所以这些值为正值，测量向上距离的值为负值。此类由"
-                app:textColor="#25252A"
-                app:textSize="13sp"
-                app:maxColumns="3"
-                app:isCharCenter="true"/>
-
-        <com.sjtu.yifei.widget.VerticalTextView
-                android:id="@+id/vtv2"
-                android:layout_width="wrap_content"
-                android:layout_height="100dp"
-                android:layout_marginTop="20dp"
-                android:background="#bdd"
-                app:columnSpacing="8dp"
-                app:maxColumns="5"
-                app:textColor="#25252A"
-                app:textSize="13sp"
-                app:isCharCenter="true"/>
-
-        <com.sjtu.yifei.widget.VerticalTextView
-                android:id="@+id/vtv3"
-                android:layout_width="wrap_content"
-                android:layout_height="100dp"
-                android:layout_marginTop="20dp"
-                android:background="#bdd"
-                app:columnSpacing="8dp"
-                app:maxColumns="3"
-                app:text="123fdd23"
-                app:textColor="#25252A"
-                app:textSize="13sp"
-                app:isCharCenter="true"/>
-
-    </LinearLayout>
 </RelativeLayout>
