@@ -23,6 +23,7 @@ public class VerticalTextView extends View {
     private int textSize;
     private int rowSpacing;
     private int columnSpacing;
+    private int columnLength;
     private int maxColumns;
 
 
@@ -31,7 +32,7 @@ public class VerticalTextView extends View {
     private int height;
     private List<String> columnTexts;
 
-    private boolean isAboutHeight = true; //是否使用包裹字体的高度，减少底部可能出现的空白区域
+    private boolean atMostHeight = true; //是否使用包裹字体的高度，减少底部可能出现的空白区域
 
     public VerticalTextView(Context context) {
         super(context);
@@ -59,7 +60,9 @@ public class VerticalTextView extends View {
         textSize = a.getDimensionPixelSize(R.styleable.VerticalTextView_textSize, textSize);
         rowSpacing = a.getDimensionPixelSize(R.styleable.VerticalTextView_rowSpacing, rowSpacing);
         columnSpacing = a.getDimensionPixelSize(R.styleable.VerticalTextView_columnSpacing, columnSpacing);
+        columnLength = a.getInteger(R.styleable.VerticalTextView_columnLength, -1);
         maxColumns = a.getInteger(R.styleable.VerticalTextView_maxColumns, -1);
+        atMostHeight = a.getBoolean(R.styleable.VerticalTextView_atMostHeight, true);
 
         a.recycle();
 
@@ -125,7 +128,11 @@ public class VerticalTextView extends View {
             width = widthSize - getPaddingLeft() - getPaddingRight();
         } else {
             int columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
-            if (isAboutHeight) {
+            if (columnLength > 0) {
+                columnCount = columnLength;
+                atMostHeight = true;
+            }
+            if (atMostHeight) {
                 height = (charHeight + rowSpacing) * (columnCount - 1) + charHeight + (int) (Math.abs(fontMetrics.descent));
             }
             int column = textCountSize / columnCount + (textCountSize % columnCount > 0 ? 1 : 0);

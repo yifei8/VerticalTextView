@@ -12,6 +12,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"
                 android:background="#bdd"
+                app:columnLength="10"
                 app:columnSpacing="8dp"
                 app:rowSpacing="4dp"
                 app:text="该类描述给定文本大小的字体的各种度量。记住，Y值向下增加，所以这些值为正值，测量向上距离的值为负值。此类由"
