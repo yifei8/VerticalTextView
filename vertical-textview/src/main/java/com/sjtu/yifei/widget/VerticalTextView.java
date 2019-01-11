@@ -16,6 +16,9 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 垂直文字显示的TextView
+ */
 public class VerticalTextView extends View {
 
     private static final String TAG = "VerticalTextView";

@@ -1,9 +1,16 @@
 apply plugin: 'com.android.library'
 
+ext {
+    bintrayName = 'vertical-textview'
+    artifact = bintrayName
+    libraryName = 'vertical-textview'
+    libraryDescription = 'vertical-textview'
+    libraryVersion = vertical_textview_version
+    localRepo = '../repo-vertical-textview'
+}
+
 android {
     compileSdkVersion 28
-
-
 
     defaultConfig {
         minSdkVersion 16
@@ -32,3 +39,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
+
+//apply from: '../bintrayv1.gradle'
+//apply from: '../installv1.gradle'
+
+apply from: '../bintray.gradle'
