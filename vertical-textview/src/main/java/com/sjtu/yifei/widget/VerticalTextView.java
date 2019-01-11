@@ -66,6 +66,7 @@ public class VerticalTextView extends View {
     }
 
     private void init(AttributeSet attrs, int defStyle) {
+        init();
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.VerticalTextView, defStyle, 0);
 
@@ -83,10 +84,8 @@ public class VerticalTextView extends View {
         textStyle = a.getInt(R.styleable.VerticalTextView_textStyle, textStyle);
         a.recycle();
 
-        init();
         // Set up a default TextPaint object
         textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-
         // Update TextPaint and text measurements from attributes
         invalidateTextPaintAndMeasurements();
     }
