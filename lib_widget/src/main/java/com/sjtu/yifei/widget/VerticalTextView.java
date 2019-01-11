@@ -32,6 +32,7 @@ public class VerticalTextView extends View {
     private int height;
     private List<String> columnTexts;
 
+    private boolean isCharCenter = false; //字符是否居中展示
     private boolean atMostHeight = true; //是否使用包裹字体的高度，减少底部可能出现的空白区域
 
     public VerticalTextView(Context context) {
@@ -63,6 +64,7 @@ public class VerticalTextView extends View {
         columnLength = a.getInteger(R.styleable.VerticalTextView_columnLength, -1);
         maxColumns = a.getInteger(R.styleable.VerticalTextView_maxColumns, -1);
         atMostHeight = a.getBoolean(R.styleable.VerticalTextView_atMostHeight, true);
+        isCharCenter = a.getBoolean(R.styleable.VerticalTextView_isCharCenter, true);
 
         a.recycle();
 
@@ -83,7 +85,7 @@ public class VerticalTextView extends View {
     private void invalidateTextPaintAndMeasurements() {
         textPaint.setTextSize(textSize);
         textPaint.setColor(textColor);
-//        textPaint.setTextAlign(Paint.Align.CENTER);
+        textPaint.setTextAlign(isCharCenter ? Paint.Align.CENTER : Paint.Align.LEFT);
         fontMetrics = textPaint.getFontMetrics();
         charHeight = (int) (Math.abs(fontMetrics.ascent) + Math.abs(fontMetrics.descent) + Math.abs(fontMetrics.leading));
         char[] chars = text.toCharArray();
@@ -106,7 +108,7 @@ public class VerticalTextView extends View {
         if (i - count < text.length()) {
             columnTexts.add(text.substring(i - count));
         }
-        Log.e(TAG, "text:" + columnTexts.toString());
+//        Log.e(TAG, "text:" + columnTexts.toString());
     }
 
     @Override
@@ -160,7 +162,11 @@ public class VerticalTextView extends View {
             char[] chars = columnTexts.get(i).toCharArray();
             for (int j = 0; j < chars.length; j++) {
                 y = j == 0 ? paddingTop + charHeight : y + charHeight + rowSpacing;
-                canvas.drawText(chars[j] + "", x, y, textPaint);
+                if (isCharCenter) {
+                    canvas.drawText(chars[j] + "", x + charWidth / 2 + 1, y, textPaint);
+                } else {
+                    canvas.drawText(chars[j] + "", x, y, textPaint);
+                }
             }
         }
 

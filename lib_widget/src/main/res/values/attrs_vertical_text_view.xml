@@ -8,5 +8,6 @@
         <attr name="columnLength" format="integer"/>
         <attr name="maxColumns" format="integer"/>
         <attr name="atMostHeight" format="boolean"/>
+        <attr name="isCharCenter" format="boolean"/>
     </declare-styleable>
 </resources>
