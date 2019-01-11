@@ -1,12 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:layout_gravity="center">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:gravity="center"
+              android:orientation="vertical"
+              android:layout_gravity="center"
+              android:paddingBottom="3dp"
+              android:layout_marginTop="3dp">
+
+    <View android:layout_width="match_parent"
+          android:layout_height="3dp"
+          android:background="#f99"/>
+
+    <TextView
+            android:id="@+id/title"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:text="这个世界上有"
+            android:maxLines="3"
+            android:ellipsize="end"/>
 
     <com.sjtu.yifei.widget.VerticalTextView
             android:id="@+id/course_title"
@@ -15,9 +29,10 @@
             android:background="#ccc"
             app:columnSpacing="8dp"
             app:maxColumns="3"
-            app:text="这个世界上有多种活法这个世界上有多种活法这个世界上有多种活法这个世界上有多种活法"
+            app:text="这个世界上有"
             app:textColor="#25252A"
             app:textSize="13sp"/>
+
 
     <View android:layout_width="match_parent"
           android:layout_height="3dp"

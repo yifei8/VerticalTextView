@@ -19,6 +19,7 @@ buildscript {
 
 allprojects {
     repositories {
+        maven{ url 'http://maven.aliyun.com/nexus/content/groups/public/'}
         maven {
             //一般 Add to JCenter会有审核延迟, 此时还没有添加到Jcenter中
             //在未审核通过之前，可以这样使用自己的maven仓库：

@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -98,20 +99,29 @@ public class VerticalTextView extends View {
     private Typeface typeface;
 
     private void invalidateTextPaintAndMeasurements() {
+        invalidateTextPaint();
+        invalidateMeasurements();
+    }
+
+    private void invalidateTextPaint() {
         if (TextUtils.isEmpty(text)) {
             return;
         }
         textPaint.setTextSize(textSize);
         textPaint.setColor(textColor);
+        if (typeface != null) {
+            textPaint.setTypeface(typeface);
+        }
         textPaint.setTextAlign(isCharCenter ? Paint.Align.CENTER : Paint.Align.LEFT);
-        fontMetrics = textPaint.getFontMetrics();
         textPaint.setFakeBoldText((textStyle & Typeface.BOLD) != 0);
         textPaint.setTextSkewX((textStyle & Typeface.ITALIC) != 0 ? -0.25f : 0);
+        fontMetrics = textPaint.getFontMetrics();
+        charHeight = (int) (Math.abs(fontMetrics.ascent) + Math.abs(fontMetrics.descent) + Math.abs(fontMetrics.leading));
 
         if (maxColumns > 0) {
             if (ellipsisPaint == null) {
                 ellipsisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                typeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/verticalEllipsis.TTF");
+                Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/verticalEllipsis.TTF");
                 ellipsisPaint.setTypeface(typeface);
                 ellipsisPaint.setFakeBoldText((textStyle & Typeface.BOLD) != 0);
                 ellipsisPaint.setTextSkewX((textStyle & Typeface.ITALIC) != 0 ? -0.25f : 0);
@@ -120,8 +130,9 @@ public class VerticalTextView extends View {
             ellipsisPaint.setColor(textColor);
             ellipsisPaint.setTextAlign(isCharCenter ? Paint.Align.CENTER : Paint.Align.LEFT);
         }
+    }
 
-        charHeight = (int) (Math.abs(fontMetrics.ascent) + Math.abs(fontMetrics.descent) + Math.abs(fontMetrics.leading));
+    private void invalidateMeasurements() {
         char[] chars = text.toCharArray();
         textCountSize = chars.length;
         for (char aChar : chars) {
@@ -233,13 +244,10 @@ public class VerticalTextView extends View {
         }
     }
 
-    public String getText() {
-        return text;
-    }
-
     public void setText(String text) {
         this.text = text;
-        invalidateTextPaintAndMeasurements();
+        invalidateMeasurements();
+        requestLayout();
     }
 
     public void setTextColor(int textColor) {
@@ -270,24 +278,39 @@ public class VerticalTextView extends View {
         this.maxColumns = maxColumns;
     }
 
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
     public void setCharCenter(boolean charCenter) {
         isCharCenter = charCenter;
     }
 
-    public void setAtMostHeight(boolean atMostHeight) {
-        this.atMostHeight = atMostHeight;
+    public void setTypeface(Typeface tf, int style) {
+        if (style > 0) {
+            if (tf == null) {
+                return;
+            }
+            tf = Typeface.create(tf, style);
+            setTypeface(tf);
+            int typefaceStyle = tf != null ? tf.getStyle() : 0;
+            int need = style & ~typefaceStyle;
+            textPaint.setFakeBoldText((need & Typeface.BOLD) != 0);
+            textPaint.setTextSkewX((need & Typeface.ITALIC) != 0 ? -0.25f : 0);
+        } else {
+            textPaint.setFakeBoldText(false);
+            textPaint.setTextSkewX(0);
+            setTypeface(tf);
+        }
     }
 
     public void setTypeface(Typeface typeface) {
-        this.typeface = typeface;
+        if (typeface == null) {
+            typeface = Typeface.DEFAULT;
+        }
+        if (textPaint.getTypeface() != typeface) {
+            textPaint.setTypeface(typeface);
+        }
+    }
+
+    public String getText() {
+        return text;
     }
 
     public int getTextColor() {

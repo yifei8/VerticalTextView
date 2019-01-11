@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         homeDataList.add("view的绘制发生在activity onResume之后，确切来说是在onAttachedToWindow之后")
         homeDataList.add("当从xml中加载完成后，调用onFinishInflate 方法，这时view完成初始准备环节。")
         homeDataList.add("如图所示，一开始view在xml中加载，调用构造函数CustomView(Context contextt, AttributeSet attrs)")
-        homeDataList.add("自定义view的生命周期过程主要分为三个环节，初始准备，监测绘制，销毁")
+        homeDataList.add("监测绘")
         homeDataList.add("定义一个自定义CustomView，在xml中加载，打印MainActivity和view各个生命周期方法，对比如图显示")
         homeDataList.add("中国是世界四大文明古国之一，有五千年的文明史，文化传统和历史积淀渊源流长。单就民俗一项，就五花八门、千奇百怪。")
         homeDataList.add("其中有些是古人长期历史经验的总结，是对不利或不可掌控因素的趋利避害，包含了朴素的科学道理，作为民族的优良传统我们有必要继承和发展。")
@@ -73,6 +73,7 @@ class MainActivity : AppCompatActivity() {
 
         fun bind(item: String) {
             itemView.course_title.text = item
+            itemView.title.text = item
         }
 
         companion object {
