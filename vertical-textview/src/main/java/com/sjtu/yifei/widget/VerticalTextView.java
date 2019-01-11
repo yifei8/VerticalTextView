@@ -156,6 +156,8 @@ public class VerticalTextView extends View {
 //        Log.e(TAG, "text:" + columnTexts.toString());
     }
 
+    private int lastShowColumnIndex = -1;
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (TextUtils.isEmpty(text)) {
@@ -192,8 +194,9 @@ public class VerticalTextView extends View {
                     if (column > maxColumns) {
                         isShowEllipsis = true;
                         column = maxColumns;
+                        lastShowColumnIndex = maxColumns;
                     } else {
-                        maxColumns = column;
+                        lastShowColumnIndex = column;
                     }
                 }
                 width = (charWidth + columnSpacing) * (column - 1) + charWidth;
@@ -222,7 +225,7 @@ public class VerticalTextView extends View {
         for (int i = 0; i < columnTexts.size(); i++) { //按列画
             x = i == 0 ? paddingLeft : x + charWidth + columnSpacing;
             char[] chars = columnTexts.get(i).toCharArray();
-            boolean isLastColumn = i == maxColumns - 1;
+            boolean isLastColumn = i == lastShowColumnIndex - 1;
             for (int j = 0; j < chars.length; j++) {
                 y = j == 0 ? paddingTop + (int) Math.abs(fontMetrics.ascent) : y + charHeight + rowSpacing;
                 if (isCharCenter) {
