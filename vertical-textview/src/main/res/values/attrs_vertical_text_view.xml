@@ -9,5 +9,10 @@
         <attr name="maxColumns" format="integer"/>
         <attr name="atMostHeight" format="boolean"/>
         <attr name="isCharCenter" format="boolean"/>
+        <attr name="textStyle">
+            <flag name="normal" value="0" />
+            <flag name="bold" value="1" />
+            <flag name="italic" value="2" />
+        </attr>
     </declare-styleable>
 </resources>
