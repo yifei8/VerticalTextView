@@ -40,7 +40,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
 
-//apply from: '../bintrayv1.gradle'
-//apply from: '../installv1.gradle'
+apply from: '../bintrayv1.gradle'
+apply from: '../installv1.gradle'
 
-apply from: '../bintray.gradle'
+//apply from: '../bintray.gradle'
