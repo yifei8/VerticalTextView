@@ -1,7 +1,6 @@
 package com.sjtu.yifei.verticaltextview
 
 import android.app.Application
-import com.sjtu.yifei.route.Routerfit
 
 /**
  * [description]
@@ -12,6 +11,5 @@ class MainApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-//        Routerfit.init(this);
     }
 }
