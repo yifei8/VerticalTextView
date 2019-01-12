@@ -240,20 +240,11 @@ public class VerticalTextView extends View {
             boolean isLastColumn = i == lastShowColumnIndex - 1;
             for (int j = 0; j < chars.length; j++) {
                 y = j == 0 ? paddingTop + (int) Math.abs(fontMetrics.ascent) : y + charHeight + rowSpacing;
-                if (isCharCenter) {
-                    if (isShowEllipsis && j == chars.length - 1 && isLastColumn) {
-                        canvas.drawText("\uE606", x + charWidth / 2 + 1, y, ellipsisPaint);
-                        return;
-                    } else {
-                        canvas.drawText(chars[j] + "", x + charWidth / 2 + 1, y, textPaint);
-                    }
+                if (lastShowColumnIndex == maxColumns && isShowEllipsis && j == chars.length - 1 && isLastColumn) {
+                    canvas.drawText("\uE606", isCharCenter ? (x + charWidth / 2 + 1) : x, y, ellipsisPaint);
+                    return;
                 } else {
-                    if (isShowEllipsis && j == chars.length - 1 && isLastColumn) {
-                        canvas.drawText("\uE606", x, y, ellipsisPaint);
-                        return;
-                    } else {
-                        canvas.drawText(chars[j] + "", x, y, textPaint);
-                    }
+                    canvas.drawText(chars[j] + "", isCharCenter ? (x + charWidth / 2 + 1) : x, y, textPaint);
                 }
             }
         }
