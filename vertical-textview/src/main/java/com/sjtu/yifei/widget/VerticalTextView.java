@@ -176,7 +176,7 @@ public class VerticalTextView extends View {
 
         if (heightMode == MeasureSpec.EXACTLY) {
             height = heightSize - getPaddingTop() - getPaddingBottom();
-        } else if (heightMode == MeasureSpec.AT_MOST) {
+        } else {
             height = heightSize - getPaddingTop() - getPaddingBottom();
             if (!TextUtils.isEmpty(text)) {
                 height = Math.min(height, charHeight * text.length());
@@ -186,7 +186,10 @@ public class VerticalTextView extends View {
             width = widthSize - getPaddingLeft() - getPaddingRight();
         } else {
             if (charHeight > 0) {
-                int columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
+                int columnCount = 1;
+                if (height > 0) {
+                    columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
+                }
                 if (columnLength > 0) {
                     columnCount = columnLength;
                     atMostHeight = true;
@@ -204,7 +207,11 @@ public class VerticalTextView extends View {
                         lastShowColumnIndex = column;
                     }
                 }
-                width = (charWidth + columnSpacing) * (column - 1) + charWidth;
+                if (lastShowColumnIndex > 0) {
+                    width = (charWidth + columnSpacing) * (lastShowColumnIndex - 1) + charWidth;
+                } else {
+                    width = (charWidth + columnSpacing) * (column - 1) + charWidth;
+                }
                 updateColumnTexts(columnCount);
             } else {
                 width = widthSize - getPaddingLeft() - getPaddingRight();
@@ -236,14 +243,14 @@ public class VerticalTextView extends View {
                 if (isCharCenter) {
                     if (isShowEllipsis && j == chars.length - 1 && isLastColumn) {
                         canvas.drawText("\uE606", x + charWidth / 2 + 1, y, ellipsisPaint);
-                        break;
+                        return;
                     } else {
                         canvas.drawText(chars[j] + "", x + charWidth / 2 + 1, y, textPaint);
                     }
                 } else {
                     if (isShowEllipsis && j == chars.length - 1 && isLastColumn) {
                         canvas.drawText("\uE606", x, y, ellipsisPaint);
-                        break;
+                        return;
                     } else {
                         canvas.drawText(chars[j] + "", x, y, textPaint);
                     }
