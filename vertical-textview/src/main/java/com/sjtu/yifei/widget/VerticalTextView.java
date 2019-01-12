@@ -158,17 +158,12 @@ public class VerticalTextView extends View {
         if (i - count < text.length()) {
             columnTexts.add(text.substring(i - count));
         }
-//        Log.e(TAG, "text:" + columnTexts.toString());
     }
 
     private int lastShowColumnIndex = -1;
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (TextUtils.isEmpty(text)) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            return;
-        }
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -177,44 +172,57 @@ public class VerticalTextView extends View {
         if (heightMode == MeasureSpec.EXACTLY) {
             height = heightSize - getPaddingTop() - getPaddingBottom();
         } else {
-            height = heightSize - getPaddingTop() - getPaddingBottom();
-            if (!TextUtils.isEmpty(text)) {
-                height = Math.min(height, charHeight * text.length());
+            if (TextUtils.isEmpty(text)) {
+                height = 0;
+            } else {
+                height = heightSize - getPaddingTop() - getPaddingBottom();
+                if (columnLength > 0) {
+                    height = Integer.MIN_VALUE;
+                    updateColumnTexts(columnLength);
+                    for (int i = 0; i < columnTexts.size(); i++) {
+                        height = Math.max(height, charHeight * columnTexts.get(i).length());
+                    }
+                } else {
+                    height = Math.min(height, charHeight * text.length());
+                }
             }
         }
         if (widthMode == MeasureSpec.EXACTLY) {
             width = widthSize - getPaddingLeft() - getPaddingRight();
         } else {
-            if (charHeight > 0) {
-                int columnCount = 1;
-                if (height > 0) {
-                    columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
-                }
-                if (columnLength > 0) {
-                    columnCount = columnLength;
-                    atMostHeight = true;
-                }
-                if (atMostHeight) {
-                    height = (charHeight + rowSpacing) * (columnCount - 1) + charHeight + (int) (Math.abs(fontMetrics.descent));
-                }
-                int column = textCountSize / columnCount + (textCountSize % columnCount > 0 ? 1 : 0);
-                if (maxColumns > 0) {
-                    if (column > maxColumns) {
-                        isShowEllipsis = true;
-                        column = maxColumns;
-                        lastShowColumnIndex = maxColumns;
-                    } else {
-                        lastShowColumnIndex = column;
-                    }
-                }
-                if (lastShowColumnIndex > 0) {
-                    width = (charWidth + columnSpacing) * (lastShowColumnIndex - 1) + charWidth;
-                } else {
-                    width = (charWidth + columnSpacing) * (column - 1) + charWidth;
-                }
-                updateColumnTexts(columnCount);
+            if (TextUtils.isEmpty(text)) {
+                width = 0;
             } else {
-                width = widthSize - getPaddingLeft() - getPaddingRight();
+                if (charHeight > 0) {
+                    int columnCount = 1;
+                    if (columnLength > 0) {
+                        columnCount = columnLength;
+                        atMostHeight = true;
+                    } else if (height > 0) {
+                        columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
+                        updateColumnTexts(columnCount);
+                    }
+                    if (atMostHeight) {
+                        height = (charHeight + rowSpacing) * (columnCount - 1) + charHeight + (int) (Math.abs(fontMetrics.descent));
+                    }
+                    int column = textCountSize / columnCount + (textCountSize % columnCount > 0 ? 1 : 0);
+                    if (maxColumns > 0) {
+                        if (column > maxColumns) {
+                            isShowEllipsis = true;
+                            column = maxColumns;
+                            lastShowColumnIndex = maxColumns;
+                        } else {
+                            lastShowColumnIndex = column;
+                        }
+                    }
+                    if (lastShowColumnIndex > 0) {
+                        width = (charWidth + columnSpacing) * (lastShowColumnIndex - 1) + charWidth;
+                    } else {
+                        width = (charWidth + columnSpacing) * (column - 1) + charWidth;
+                    }
+                } else {
+                    width = getSuggestedMinimumWidth();
+                }
             }
         }
 
