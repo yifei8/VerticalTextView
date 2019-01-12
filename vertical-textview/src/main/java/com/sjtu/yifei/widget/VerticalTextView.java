@@ -189,6 +189,10 @@ public class VerticalTextView extends View {
         }
         if (widthMode == MeasureSpec.EXACTLY) {
             width = widthSize - getPaddingLeft() - getPaddingRight();
+            if (charHeight > 0) {
+                int columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
+                updateColumnTexts(columnCount);
+            }
         } else {
             if (TextUtils.isEmpty(text)) {
                 width = 0;
@@ -200,8 +204,8 @@ public class VerticalTextView extends View {
                         atMostHeight = true;
                     } else if (height > 0) {
                         columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
-                        updateColumnTexts(columnCount);
                     }
+                    updateColumnTexts(columnCount);
                     if (atMostHeight) {
                         height = (charHeight + rowSpacing) * (columnCount - 1) + charHeight + (int) (Math.abs(fontMetrics.descent));
                     }
