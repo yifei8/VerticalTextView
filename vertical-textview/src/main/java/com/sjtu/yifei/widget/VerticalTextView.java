@@ -133,6 +133,9 @@ public class VerticalTextView extends View {
     }
 
     private void invalidateMeasurements() {
+        if (TextUtils.isEmpty(text)) {
+            return;
+        }
         char[] chars = text.toCharArray();
         textCountSize = chars.length;
         for (char aChar : chars) {
@@ -141,7 +144,9 @@ public class VerticalTextView extends View {
                 charWidth = (int) tempWidth;
             }
         }
-        columnTexts = new ArrayList<>();
+        if (columnTexts == null) {
+            columnTexts = new ArrayList<>();
+        }
     }
 
     private void updateColumnTexts(int count) {
