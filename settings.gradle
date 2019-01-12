@@ -1,1 +1,1 @@
-include ':app', ':vertical-textview'
+include ':app', ':vertical-textview', ':route'
