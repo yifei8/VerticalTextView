@@ -93,25 +93,29 @@ public class VerticalTextView extends View {
     private boolean isShowEllipsis;
     private int charWidth;
     private int charHeight;
-    private int textCountSize;
     private Paint.FontMetrics fontMetrics;
-    private Typeface typeface;
 
     private void invalidateTextPaintAndMeasurements() {
+        invalidateTextPaint();
+        invalidateMeasurements();
+    }
+
+    private void invalidateTextPaint() {
         if (TextUtils.isEmpty(text)) {
             return;
         }
         textPaint.setTextSize(textSize);
         textPaint.setColor(textColor);
         textPaint.setTextAlign(isCharCenter ? Paint.Align.CENTER : Paint.Align.LEFT);
-        fontMetrics = textPaint.getFontMetrics();
         textPaint.setFakeBoldText((textStyle & Typeface.BOLD) != 0);
         textPaint.setTextSkewX((textStyle & Typeface.ITALIC) != 0 ? -0.25f : 0);
+        fontMetrics = textPaint.getFontMetrics();
+        charHeight = (int) (Math.abs(fontMetrics.ascent) + Math.abs(fontMetrics.descent) + Math.abs(fontMetrics.leading));
 
         if (maxColumns > 0) {
             if (ellipsisPaint == null) {
                 ellipsisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                typeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/verticalEllipsis.TTF");
+                Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/verticalEllipsis.TTF");
                 ellipsisPaint.setTypeface(typeface);
                 ellipsisPaint.setFakeBoldText((textStyle & Typeface.BOLD) != 0);
                 ellipsisPaint.setTextSkewX((textStyle & Typeface.ITALIC) != 0 ? -0.25f : 0);
@@ -120,17 +124,23 @@ public class VerticalTextView extends View {
             ellipsisPaint.setColor(textColor);
             ellipsisPaint.setTextAlign(isCharCenter ? Paint.Align.CENTER : Paint.Align.LEFT);
         }
+    }
 
-        charHeight = (int) (Math.abs(fontMetrics.ascent) + Math.abs(fontMetrics.descent) + Math.abs(fontMetrics.leading));
+    private void invalidateMeasurements() {
+        if (TextUtils.isEmpty(text)) {
+            return;
+        }
         char[] chars = text.toCharArray();
-        textCountSize = chars.length;
+        int textCountSize = chars.length;
         for (char aChar : chars) {
             float tempWidth = textPaint.measureText(aChar + "");
             if (charWidth < tempWidth) {
                 charWidth = (int) tempWidth;
             }
         }
-        columnTexts = new ArrayList<>();
+        if (columnTexts == null) {
+            columnTexts = new ArrayList<>();
+        }
     }
 
     private void updateColumnTexts(int count) {
@@ -142,15 +152,12 @@ public class VerticalTextView extends View {
         if (i - count < text.length()) {
             columnTexts.add(text.substring(i - count));
         }
-//        Log.e(TAG, "text:" + columnTexts.toString());
     }
+
+    private int lastShowColumnIndex = -1;
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (TextUtils.isEmpty(text)) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            return;
-        }
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -158,48 +165,79 @@ public class VerticalTextView extends View {
 
         if (heightMode == MeasureSpec.EXACTLY) {
             height = heightSize - getPaddingTop() - getPaddingBottom();
-        } else if (heightMode == MeasureSpec.AT_MOST) {
-            height = heightSize - getPaddingTop() - getPaddingBottom();
-            if (!TextUtils.isEmpty(text)) {
-                height = Math.min(height, charHeight * text.length());
+        } else {
+            if (TextUtils.isEmpty(text)) {
+                height = 0;
+            } else {
+                height = heightSize - getPaddingTop() - getPaddingBottom();
+                /*
+                 * bug fix 当parent是RelativeLayout时，RelativeLayout onMeasure会测量两次，
+                 * 当自定义view宽或高设置为wrap_content时，会出现计算出错，显示异常。这是由于
+                 * 第一次调用时宽高mode默认是wrap_content类型，size会是parent size。这将导致
+                 * 自定义view第一次计算出的size不是我们需要的值，影响第二次正常计算。
+                 */
+                if (getLayoutParams() != null && getLayoutParams().height > 0) {
+                    height = getLayoutParams().height;
+                }
+                if (columnLength > 0) {
+                    height = Integer.MIN_VALUE;
+                    updateColumnTexts(columnLength);
+                    for (int i = 0; i < columnTexts.size(); i++) {
+                        height = Math.max(height, charHeight * columnTexts.get(i).length());
+                    }
+                } else {
+                    height = Math.min(height, charHeight * text.length());
+                }
             }
         }
         if (widthMode == MeasureSpec.EXACTLY) {
             width = widthSize - getPaddingLeft() - getPaddingRight();
-        } else {
             if (charHeight > 0) {
                 int columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
-                if (columnLength > 0) {
-                    columnCount = columnLength;
-                    atMostHeight = true;
-                }
-                if (atMostHeight) {
-                    height = (charHeight + rowSpacing) * (columnCount - 1) + charHeight + (int) (Math.abs(fontMetrics.descent));
-                }
-                int column = textCountSize / columnCount + (textCountSize % columnCount > 0 ? 1 : 0);
-                if (maxColumns > 0) {
-                    if (column > maxColumns) {
-                        isShowEllipsis = true;
-                        column = maxColumns;
-                    } else {
-                        maxColumns = column;
-                    }
-                }
-                width = (charWidth + columnSpacing) * (column - 1) + charWidth;
                 updateColumnTexts(columnCount);
+            }
+        } else {
+            if (TextUtils.isEmpty(text)) {
+                width = 0;
             } else {
-                width = widthSize - getPaddingLeft() - getPaddingRight();
+                if (charHeight > 0) {
+                    int columnCount = 1;
+                    if (columnLength > 0) {
+                        columnCount = columnLength;
+                        atMostHeight = true;
+                    } else if (height > 0) {
+                        columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
+                    }
+                    updateColumnTexts(columnCount);
+                    if (atMostHeight) {
+                        height = (charHeight + rowSpacing) * (columnCount - 1) + charHeight + (int) (Math.abs(fontMetrics.descent));
+                    }
+                    int column = columnTexts.size();
+                    if (maxColumns > 0) {
+                        if (column > maxColumns) {
+                            isShowEllipsis = true;
+                            column = maxColumns;
+                            lastShowColumnIndex = maxColumns;
+                        } else {
+                            lastShowColumnIndex = column;
+                        }
+                    }
+                    if (lastShowColumnIndex > 0) {
+                        width = (charWidth + columnSpacing) * (lastShowColumnIndex - 1) + charWidth;
+                    } else {
+                        width = (charWidth + columnSpacing) * (column - 1) + charWidth;
+                    }
+                } else {
+                    width = getSuggestedMinimumWidth();
+                }
             }
         }
 
-        widthMeasureSpec = MeasureSpec.makeMeasureSpec(width + getPaddingLeft() + getPaddingRight(), MeasureSpec.EXACTLY);
-        heightMeasureSpec = MeasureSpec.makeMeasureSpec(height + getPaddingTop() + getPaddingBottom(), MeasureSpec.EXACTLY);
-        setMeasuredDimension(widthMeasureSpec, heightMeasureSpec);
+        setMeasuredDimension(width, height);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        // allocations per draw cycle.
         int paddingLeft = getPaddingLeft();
         int paddingTop = getPaddingTop();
 
@@ -211,35 +249,23 @@ public class VerticalTextView extends View {
         for (int i = 0; i < columnTexts.size(); i++) { //按列画
             x = i == 0 ? paddingLeft : x + charWidth + columnSpacing;
             char[] chars = columnTexts.get(i).toCharArray();
-            boolean isLastColumn = i == maxColumns - 1;
+            boolean isLastColumn = i == lastShowColumnIndex - 1;
             for (int j = 0; j < chars.length; j++) {
                 y = j == 0 ? paddingTop + (int) Math.abs(fontMetrics.ascent) : y + charHeight + rowSpacing;
-                if (isCharCenter) {
-                    if (isShowEllipsis && j == chars.length - 1 && isLastColumn) {
-                        canvas.drawText("\uE606", x + charWidth / 2 + 1, y, ellipsisPaint);
-                        break;
-                    } else {
-                        canvas.drawText(chars[j] + "", x + charWidth / 2 + 1, y, textPaint);
-                    }
+                if (lastShowColumnIndex == maxColumns && isShowEllipsis && j == chars.length - 1 && isLastColumn) {
+                    canvas.drawText("\uE606", isCharCenter ? (x + charWidth / 2 + 1) : x, y, ellipsisPaint);
+                    return;
                 } else {
-                    if (isShowEllipsis && j == chars.length - 1 && isLastColumn) {
-                        canvas.drawText("\uE606", x, y, ellipsisPaint);
-                        break;
-                    } else {
-                        canvas.drawText(chars[j] + "", x, y, textPaint);
-                    }
+                    canvas.drawText(chars[j] + "", isCharCenter ? (x + charWidth / 2 + 1) : x, y, textPaint);
                 }
             }
         }
     }
 
-    public String getText() {
-        return text;
-    }
-
     public void setText(String text) {
         this.text = text;
         invalidateTextPaintAndMeasurements();
+        requestLayout();
     }
 
     public void setTextColor(int textColor) {
@@ -270,24 +296,47 @@ public class VerticalTextView extends View {
         this.maxColumns = maxColumns;
     }
 
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
     public void setCharCenter(boolean charCenter) {
         isCharCenter = charCenter;
     }
 
-    public void setAtMostHeight(boolean atMostHeight) {
-        this.atMostHeight = atMostHeight;
+    public void setTypeface(Typeface tf, int style) {
+        if (style > 0) {
+            if (tf == null) {
+                return;
+            }
+            tf = Typeface.create(tf, style);
+            setTypeface(tf);
+            int typefaceStyle = tf != null ? tf.getStyle() : 0;
+            int need = style & ~typefaceStyle;
+            textPaint.setFakeBoldText((need & Typeface.BOLD) != 0);
+            textPaint.setTextSkewX((need & Typeface.ITALIC) != 0 ? -0.25f : 0);
+        } else {
+            textPaint.setFakeBoldText(false);
+            textPaint.setTextSkewX(0);
+            setTypeface(tf);
+        }
     }
 
     public void setTypeface(Typeface typeface) {
-        this.typeface = typeface;
+        if (typeface == null) {
+            typeface = Typeface.DEFAULT;
+        }
+        if (textPaint.getTypeface() != typeface) {
+            textPaint.setTypeface(typeface);
+        }
+    }
+
+    public int getVWidth() {
+        return width;
+    }
+
+    public int getVHeight() {
+        return height;
+    }
+
+    public String getText() {
+        return text;
     }
 
     public int getTextColor() {
@@ -324,10 +373,6 @@ public class VerticalTextView extends View {
 
     public boolean isShowEllipsis() {
         return isShowEllipsis;
-    }
-
-    public Typeface getTypeface() {
-        return typeface;
     }
 
     private int sp2px(Context context, float spVal) {

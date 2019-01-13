@@ -19,6 +19,3 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
-
--keep class * implements com.sjtu.yifei.ioc.**{*;}
--keep class * implements com.sjtu.yifei.annotation.AutoRegisterContract{*;}
