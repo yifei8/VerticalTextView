@@ -209,7 +209,7 @@ public class VerticalTextView extends View {
                     if (atMostHeight) {
                         height = (charHeight + rowSpacing) * (columnCount - 1) + charHeight + (int) (Math.abs(fontMetrics.descent));
                     }
-                    int column = textCountSize / columnCount + (textCountSize % columnCount > 0 ? 1 : 0);
+                    int column = columnTexts.size();
                     if (maxColumns > 0) {
                         if (column > maxColumns) {
                             isShowEllipsis = true;
@@ -230,14 +230,11 @@ public class VerticalTextView extends View {
             }
         }
 
-        widthMeasureSpec = MeasureSpec.makeMeasureSpec(width + getPaddingLeft() + getPaddingRight(), MeasureSpec.EXACTLY);
-        heightMeasureSpec = MeasureSpec.makeMeasureSpec(height + getPaddingTop() + getPaddingBottom(), MeasureSpec.EXACTLY);
-        setMeasuredDimension(widthMeasureSpec, heightMeasureSpec);
+        setMeasuredDimension(width, height);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        // allocations per draw cycle.
         int paddingLeft = getPaddingLeft();
         int paddingTop = getPaddingTop();
 
@@ -264,7 +261,7 @@ public class VerticalTextView extends View {
 
     public void setText(String text) {
         this.text = text;
-        invalidateMeasurements();
+        invalidateTextPaintAndMeasurements();
         requestLayout();
     }
 
