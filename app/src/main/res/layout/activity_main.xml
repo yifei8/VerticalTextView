@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical">
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
 
     <android.support.v7.widget.AppCompatButton
             android:id="@+id/acb1"
@@ -10,10 +12,50 @@
             android:layout_height="wrap_content"
             android:text="测试列表显示"/>
 
-    <com.sjtu.yifei.widget.VerticalTextView
+    <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:text="dd"
-            android:background="#ccc"/>
+            android:orientation="horizontal">
+
+        <com.sjtu.yifei.widget.VerticalTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
+                app:columnLength="13"
+                app:text="三国鼎立你建立了盖世功绩，创八阵图你成就了永久声名。江水东流推不转你布阵石头，千古遗恨你灭吴失策功未就。"
+                android:background="#ccc"/>
+
+        <com.sjtu.yifei.widget.VerticalTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:columnLength="13"
+                app:textStyle="bold"
+                app:text="三国鼎立你建立了盖世功绩，创八阵图你成就了永久声名。江水东流推不转你布阵石头，千古遗恨你灭吴失策功未就。"
+                android:background="#faa"/>
+
+    </LinearLayout>
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+        <com.sjtu.yifei.widget.VerticalTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
+                app:columnLength="13"
+                app:text="三国鼎立你建立了盖世功绩，创八阵图你成就了永久声名。江水东流推不转你布阵石头，千古遗恨你灭吴失策功未就。"
+                android:background="#ccc"/>
+
+        <com.sjtu.yifei.widget.VerticalTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:columnLength="13"
+                app:textStyle="bold|italic"
+                app:text="三国鼎立你建立了盖世功绩，创八阵图你成就了永久声名。江水东流推不转你布阵石头，千古遗恨你灭吴失策功未就。"
+                android:background="#faa"/>
+
+    </LinearLayout>
 
 </LinearLayout>

@@ -93,9 +93,7 @@ public class VerticalTextView extends View {
     private boolean isShowEllipsis;
     private int charWidth;
     private int charHeight;
-    private int textCountSize;
     private Paint.FontMetrics fontMetrics;
-    private Typeface typeface;
 
     private void invalidateTextPaintAndMeasurements() {
         invalidateTextPaint();
@@ -108,9 +106,6 @@ public class VerticalTextView extends View {
         }
         textPaint.setTextSize(textSize);
         textPaint.setColor(textColor);
-        if (typeface != null) {
-            textPaint.setTypeface(typeface);
-        }
         textPaint.setTextAlign(isCharCenter ? Paint.Align.CENTER : Paint.Align.LEFT);
         textPaint.setFakeBoldText((textStyle & Typeface.BOLD) != 0);
         textPaint.setTextSkewX((textStyle & Typeface.ITALIC) != 0 ? -0.25f : 0);
@@ -136,7 +131,7 @@ public class VerticalTextView extends View {
             return;
         }
         char[] chars = text.toCharArray();
-        textCountSize = chars.length;
+        int textCountSize = chars.length;
         for (char aChar : chars) {
             float tempWidth = textPaint.measureText(aChar + "");
             if (charWidth < tempWidth) {
@@ -181,7 +176,7 @@ public class VerticalTextView extends View {
                  * 第一次调用时宽高mode默认是wrap_content类型，size会是parent size。这将导致
                  * 自定义view第一次计算出的size不是我们需要的值，影响第二次正常计算。
                  */
-                if (getLayoutParams() != null && getLayoutParams().height  > 0) {
+                if (getLayoutParams() != null && getLayoutParams().height > 0) {
                     height = getLayoutParams().height;
                 }
                 if (columnLength > 0) {
@@ -332,6 +327,14 @@ public class VerticalTextView extends View {
         }
     }
 
+    public int getVWidth() {
+        return width;
+    }
+
+    public int getVHeight() {
+        return height;
+    }
+
     public String getText() {
         return text;
     }
@@ -370,10 +373,6 @@ public class VerticalTextView extends View {
 
     public boolean isShowEllipsis() {
         return isShowEllipsis;
-    }
-
-    public Typeface getTypeface() {
-        return typeface;
     }
 
     private int sp2px(Context context, float spVal) {
