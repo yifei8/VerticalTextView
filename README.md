@@ -1,7 +1,7 @@
 # VerticalTextView
 
 ## Demo
-![demo.gif](https://upload-images.jianshu.io/upload_images/2116778-b9a358c60a1594c8.gif?imageMogr2/auto-orient/strip)
+![demo.gif](https://upload-images.jianshu.io/upload_images/2116778-b9a358c60a1594c8.gif?imageMogr2/thumbnail/!50p)
 
 ## 最新版本
 [ ![Download](https://api.bintray.com/packages/iyifei/maven/vertical-textview/images/download.svg?version=1.4.0) ](https://bintray.com/iyifei/maven/vertical-textview/1.4.0/link)
