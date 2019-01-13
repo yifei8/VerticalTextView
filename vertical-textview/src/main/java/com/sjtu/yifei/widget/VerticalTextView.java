@@ -9,7 +9,6 @@ import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -176,6 +175,15 @@ public class VerticalTextView extends View {
                 height = 0;
             } else {
                 height = heightSize - getPaddingTop() - getPaddingBottom();
+                /*
+                 * bug fix 当parent是RelativeLayout时，RelativeLayout onMeasure会测量两次，
+                 * 当自定义view宽或高设置为wrap_content时，会出现计算出错，显示异常。这是由于
+                 * 第一次调用时宽高mode默认是wrap_content类型，size会是parent size。这将导致
+                 * 自定义view第一次计算出的size不是我们需要的值，影响第二次正常计算。
+                 */
+                if (getLayoutParams() != null && getLayoutParams().height  > 0) {
+                    height = getLayoutParams().height;
+                }
                 if (columnLength > 0) {
                     height = Integer.MIN_VALUE;
                     updateColumnTexts(columnLength);
