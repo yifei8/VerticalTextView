@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion Integer.parseInt(COMPILE_SDK_VERSION)
     defaultConfig {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -23,15 +23,14 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-
     //noinspection GradleCompatible
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation "com.android.support:appcompat-v7:${SUPPORT_LIB_VERSION}"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    kapt "com.sjtu.yifei:auto-complier:0.0.9"
-    api ("com.sjtu.yifei:auto-api:1.0.2", {
+    kapt "com.sjtu.yifei:auto-complier:${AUTO_COMPLIER}"
+    api("com.sjtu.yifei:auto-api:${AUTO_API}", {
         exclude group: 'com.android.support'
     })
 
