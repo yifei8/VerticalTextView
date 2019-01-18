@@ -5,11 +5,11 @@
 
 ##
 ```
-implementation "com.sjtu.yifei:vertical-textview:1.4.0"
+implementation "com.sjtu.yifei:vertical-textview:1.4.1"
 ```
 
 ## 最新版本
-[ ![Download](https://api.bintray.com/packages/iyifei/maven/vertical-textview/images/download.svg?version=1.4.0) ](https://bintray.com/iyifei/maven/vertical-textview/1.4.0/link)
+[ ![Download](https://api.bintray.com/packages/iyifei/maven/vertical-textview/images/download.svg?version=1.4.1) ](https://bintray.com/iyifei/maven/vertical-textview/1.4.1/link)
 
 ## 参数说明
 参数|类型|说明|
