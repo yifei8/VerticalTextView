@@ -29,16 +29,14 @@ public class VerticalTextView extends View {
     private int columnLength;
     private int maxColumns;
     private int textStyle;
-
+    private boolean isCharCenter = false; //字符是否居中展示
+    private boolean atMostHeight = true; //是否使用包裹字体的高度，减少底部可能出现的空白区域
 
     private Paint ellipsisPaint;
     private TextPaint textPaint;
-    private int width;
-    private int height;
+    private int myMeasureWidth;
+    private int myMeasureHeight;
     private List<String> columnTexts;
-
-    private boolean isCharCenter = false; //字符是否居中展示
-    private boolean atMostHeight = true; //是否使用包裹字体的高度，减少底部可能出现的空白区域
 
     public VerticalTextView(Context context) {
         super(context);
@@ -96,6 +94,12 @@ public class VerticalTextView extends View {
     private Paint.FontMetrics fontMetrics;
 
     private void invalidateTextPaintAndMeasurements() {
+        lastShowColumnIndex = -1;
+        isShowEllipsis = false;
+        if (columnTexts != null) {
+            columnTexts.clear();
+        }
+        fontMetrics = null;
         invalidateTextPaint();
         invalidateMeasurements();
     }
@@ -131,7 +135,6 @@ public class VerticalTextView extends View {
             return;
         }
         char[] chars = text.toCharArray();
-        int textCountSize = chars.length;
         for (char aChar : chars) {
             float tempWidth = textPaint.measureText(aChar + "");
             if (charWidth < tempWidth) {
@@ -164,12 +167,12 @@ public class VerticalTextView extends View {
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
         if (heightMode == MeasureSpec.EXACTLY) {
-            height = heightSize - getPaddingTop() - getPaddingBottom();
+            myMeasureHeight = heightSize - getPaddingTop() - getPaddingBottom();
         } else {
             if (TextUtils.isEmpty(text)) {
-                height = 0;
+                myMeasureHeight = 0;
             } else {
-                height = heightSize - getPaddingTop() - getPaddingBottom();
+                myMeasureHeight = heightSize - getPaddingTop() - getPaddingBottom();
                 /*
                  * bug fix 当parent是RelativeLayout时，RelativeLayout onMeasure会测量两次，
                  * 当自定义view宽或高设置为wrap_content时，会出现计算出错，显示异常。这是由于
@@ -177,40 +180,40 @@ public class VerticalTextView extends View {
                  * 自定义view第一次计算出的size不是我们需要的值，影响第二次正常计算。
                  */
                 if (getLayoutParams() != null && getLayoutParams().height > 0) {
-                    height = getLayoutParams().height;
+                    myMeasureHeight = getLayoutParams().height;
                 }
                 if (columnLength > 0) {
-                    height = Integer.MIN_VALUE;
+                    myMeasureHeight = Integer.MIN_VALUE;
                     updateColumnTexts(columnLength);
                     for (int i = 0; i < columnTexts.size(); i++) {
-                        height = Math.max(height, charHeight * columnTexts.get(i).length());
+                        myMeasureHeight = Math.max(myMeasureHeight, charHeight * columnTexts.get(i).length());
                     }
                 } else {
-                    height = Math.min(height, charHeight * text.length());
+                    myMeasureHeight = Math.min(myMeasureHeight, charHeight * text.length());
                 }
             }
         }
         if (widthMode == MeasureSpec.EXACTLY) {
-            width = widthSize - getPaddingLeft() - getPaddingRight();
+            myMeasureWidth = widthSize - getPaddingLeft() - getPaddingRight();
             if (charHeight > 0) {
-                int columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
+                int columnCount = (myMeasureHeight - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
                 updateColumnTexts(columnCount);
             }
         } else {
             if (TextUtils.isEmpty(text)) {
-                width = 0;
+                myMeasureWidth = 0;
             } else {
                 if (charHeight > 0) {
                     int columnCount = 1;
                     if (columnLength > 0) {
                         columnCount = columnLength;
                         atMostHeight = true;
-                    } else if (height > 0) {
-                        columnCount = (height - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
+                    } else if (myMeasureHeight > 0) {
+                        columnCount = (myMeasureHeight - charHeight) / (charHeight + rowSpacing) + 1;//一列的字符个数
                     }
                     updateColumnTexts(columnCount);
                     if (atMostHeight) {
-                        height = (charHeight + rowSpacing) * (columnCount - 1) + charHeight + (int) (Math.abs(fontMetrics.descent));
+                        myMeasureHeight = (charHeight + rowSpacing) * (columnCount - 1) + charHeight + (int) (Math.abs(fontMetrics.descent));
                     }
                     int column = columnTexts.size();
                     if (maxColumns > 0) {
@@ -223,17 +226,17 @@ public class VerticalTextView extends View {
                         }
                     }
                     if (lastShowColumnIndex > 0) {
-                        width = (charWidth + columnSpacing) * (lastShowColumnIndex - 1) + charWidth;
+                        myMeasureWidth = (charWidth + columnSpacing) * (lastShowColumnIndex - 1) + charWidth;
                     } else {
-                        width = (charWidth + columnSpacing) * (column - 1) + charWidth;
+                        myMeasureWidth = (charWidth + columnSpacing) * (column - 1) + charWidth;
                     }
                 } else {
-                    width = getSuggestedMinimumWidth();
+                    myMeasureWidth = getSuggestedMinimumWidth();
                 }
             }
         }
 
-        setMeasuredDimension(width, height);
+        setMeasuredDimension(myMeasureWidth, myMeasureHeight);
     }
 
     @Override
@@ -328,11 +331,11 @@ public class VerticalTextView extends View {
     }
 
     public int getVWidth() {
-        return width;
+        return myMeasureWidth;
     }
 
     public int getVHeight() {
-        return height;
+        return myMeasureHeight;
     }
 
     public String getText() {

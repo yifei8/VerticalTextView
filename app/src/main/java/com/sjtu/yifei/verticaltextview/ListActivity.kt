@@ -30,9 +30,9 @@ class ListActivity : AppCompatActivity() {
         val homeDataList: ArrayList<String> = ArrayList();
         homeDataList.add("在Android studio 的Terminal终端输入以下指令，可以查看")
         homeDataList.add("我们都知道自定义view绘制当中最重要的有三个方法，onMeasure onLayout onDraw")
-        homeDataList.add("view绘制过程中为了确认view大小，会多次重复调用onMeasure。这跟view绘制机制有关，有兴趣可以去官网了解How Android Draws Views")
+        homeDataList.add("view绘制过程中为了确认")
         homeDataList.add("onWindowFocusChanged是判断view是否获取焦点，参数hasWindowFocus 对应返回true 和false 可以用该方法判断view进出后台")
-        homeDataList.add("onDetachedFromWindow当activity销毁之后，view会从window上抽离，此时view销毁。")
+        homeDataList.add("国是世界四大文明古国之")
         homeDataList.add("onAttachedToWindow是将view绑定到activity所在window，附加到window后，程序开始进行所有view的绘制。")
         homeDataList.add("view的绘制发生在activity onResume之后，确切来说是在onAttachedToWindow之后")
         homeDataList.add("当从xml中加载完成后，调用onFinishInflate 方法，这时view完成初始准备环节。")
